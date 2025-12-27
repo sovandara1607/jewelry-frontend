@@ -1,0 +1,642 @@
+/* --- Global Styles & Fonts --- */
+:root {
+    --font-heading: 'Cormorant Garamond', serif;
+    --font-body: 'Inter', sans-serif;
+    --color-text: #333;
+    --color-background: #FFFFFF;
+    --color-light-gray: #F9F9F9;
+    --color-border: #EAEAEA;
+}
+/* header wrapper */
+.site-header-wrapper {
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* We will reuse this class inside sections */
+.section-container {
+    max-width: 1200px; 
+    margin: 0 auto;
+    padding: 0 50px; 
+}
+body {
+    margin: 0;
+    font-family: var(--font-body);
+    background-color: var(--color-background);
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.container {
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.btn-shop {
+    display: inline-block;
+    background-color: #FFFFFF;
+    border: 1px solid #DDDDDD;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-shop:hover {
+    background-color: #f1f1f1;
+    border-color: #ccc;
+}
+
+/* --- Header --- */
+.main-header {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    padding: 20px 0; 
+}
+
+.logo a {
+    font-family: var(--font-heading);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+/* This is the main container for the right side */
+.header-right-side {
+    display: flex;
+    align-items: center;
+    gap: 30px; 
+}
+
+.main-nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    gap: 30px; 
+}
+
+.main-nav a {
+    font-size: 15px;
+    font-weight: 400;
+    transition: color 0.2s;
+}
+
+.main-nav a:hover {
+    color: #888;
+}
+
+
+.header-icons {
+    display: flex;
+    gap: 20px;
+}
+.header-icons svg {
+    color: #555;
+    transition: color 0.2s;
+}
+.header-icons a:hover svg {
+    color: #000;
+}
+.header-right-side {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.header-search form {
+    position: relative;
+}
+
+.header-search input {
+    border: 1px solid #EAEAEA;
+    background-color: #FAFAFA;
+    border-radius: 20px; /* Makes it pill-shaped */
+    padding: 8px 40px 8px 15px; /* Right padding for the icon */
+    font-size: 14px;
+    width: 200px;
+    transition: all 0.2s ease-in-out;
+}
+
+.header-search input:focus {
+    outline: none;
+    border-color: #cccccc;
+    background-color: #fff;
+    width: 220px; /* Slightly expand on focus */
+}
+
+.header-search button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 12px;
+    color: #888;
+}
+
+.header-search button:hover {
+    color: #000;
+}
+
+/* --- Hero Section --- */
+.hero-section {
+    height: 600px;
+    background-size: cover;
+    background-position: center 30%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.hero-content {
+    background-color: rgba(255, 255, 255, 0); /* Transparent */
+}
+
+.hero-content h1 {
+    font-family: var(--font-heading);
+    font-size: 42px;
+    font-weight: 600;
+    color: #FFFFFF;
+    line-height: 1.4;
+    margin: 0 0 25px 0;
+}
+
+/* --- Newest Arrivals Section --- */
+.new-arrivals-section {
+    padding: 80px 50px;
+    background-color: var(--color-background);
+}
+
+.section-title a {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--color-text);
+    margin-bottom: 40px;
+    display: inline-block;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+}
+
+.product-card {
+    text-align: center;
+}
+
+.product-image-container {
+    background-color: var(--color-light-gray);
+    padding: 0px;
+    margin-bottom: 15px;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+     overflow: hidden;
+}
+
+.product-image-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transform: scale(1.2); 
+
+}
+
+.product-name {
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 0 0 5px 0;
+    color: #666;
+}
+
+.product-price {
+    font-size: 15px;
+    color: var(--color-text);
+    margin: 0;
+}
+
+/* --- Collection Section --- */
+.collection-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 700px;
+    background-color: var(--color-light-gray);
+}
+
+.collection-image {
+    background-size: cover;
+    background-position: center;
+}
+
+.collection-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 80px;
+    text-align: left;
+}
+
+.collection-title {
+    font-family: 'Cormorant Garamond', serif;
+    
+    font-weight: 600;
+    font-size: 64px;
+    margin: 0 0 20px 0;
+}
+
+.collection-description {
+    font-size: 16px;
+    line-height: 1.8;
+    max-width: 450px;
+    margin-bottom: 30px;
+    color: #555;
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 1200px) {
+    .collection-content {
+        padding: 60px;
+    }
+    .collection-title {
+        font-size: 52px;
+    }
+}
+
+@media (max-width: 992px) {
+    .main-header { padding: 20px 30px; }
+    .new-arrivals-section { padding: 60px 30px; }
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .collection-section {
+        grid-template-columns: 1fr;
+    }
+    .collection-image {
+        height: 400px;
+    }
+    .collection-content {
+        align-items: center;
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .hero-section {
+        height: 450px;
+    }
+    .hero-content h1 {
+        font-size: 32px;
+    }
+    .new-arrivals-section {
+        padding: 40px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    .collection-title {
+        font-size: 44px;
+    }
+    .collection-description {
+        font-size: 15px;
+    }
+}
+
+/* --- Marketplace Intro Section --- */
+
+.marketplace-intro-section {
+    background-color: #F5F5F5;
+    background-size: cover;
+    background-position: center;
+    text-align: center;
+    padding: 120px 20px;
+    color: #333;
+    margin-top: 80px; /* <-- ADD THIS LINE FOR SPACING */
+}
+
+.intro-content h2 {
+    font-family: var(--font-heading);
+    font-size: 48px;
+    font-weight: 400;
+    line-height: 1.3;
+    margin: 0 0 25px 0;
+}
+
+.intro-content p {
+    max-width: 650px;
+    margin: 0 auto 30px auto;
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+/* --- Call to Action (CTA) Section --- */
+.cta-section {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 80px 50px;
+    background-color: #FFFFFF;
+}
+
+.cta-card {
+    background-color: #E9E9E9;
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    max-width: 400px;
+    flex: 1;
+}
+
+.cta-card h3 {
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0 0 15px 0;
+}
+
+.cta-card p {
+    margin: 0 0 25px 0;
+    color: #555;
+    font-size: 16px;
+}
+
+.btn-dark {
+    display: inline-block;
+    background-color: #000000;
+    color: #FFFFFF;
+    padding: 12px 28px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: opacity 0.3s ease;
+}
+
+.btn-dark:hover {
+    opacity: 0.8;
+}
+
+/* --- Site Footer --- */
+.site-footer {
+    background-color: #F5F5F5;
+    border-top: 1px solid var(--color-border);
+    padding: 60px 50px;
+    color: #444;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-logo {
+    font-family: var(--font-heading);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    text-align: center;
+}
+
+.footer-contact-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.footer-contact-item svg {
+    margin-bottom: 5px;
+}
+
+.footer-social p {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 0 0 15px 0;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.social-icons img {
+    width: 20px;
+    height: 20px;
+    filter: invert(30%);
+    transition: filter 0.3s;
+}
+
+.social-icons a:hover img {
+    filter: invert(0%);
+}
+
+
+/* --- Responsive adjustments for new sections --- */
+@media (max-width: 992px) {
+    .cta-section {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+        row-gap: 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .intro-content h2 {
+        font-size: 36px;
+    }
+}
+
+@media (max-width: 576px) {
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- Profile Dropdown Styles (Hover Version) --- */
+.profile-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-dropdown-toggle {
+    /* Styles for the avatar icon link */
+    display: block; /* Make it a block element for proper layout */
+    padding: 0;
+    line-height: 0;
+    color: #555;
+    transition: color 0.2s;
+}
+.profile-dropdown-toggle:hover {
+    color: #000;
+}
+
+.profile-dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 15px; /* Creates a small gap between icon and menu */
+    background-color: #ffffff;
+    border: 1px solid #EAEAEA;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    width: 180px;
+    z-index: 100;
+
+    /* --- ANIMATION & HOVER LOGIC --- */
+    visibility: hidden; /* Hide it completely */
+    opacity: 0; /* Make it fully transparent */
+    transform: translateY(-10px); /* Start it slightly higher */
+    transition: all 0.2s ease-in-out; /* Animate all properties smoothly */
+}
+
+/* This is the key: When you hover over the CONTAINER... */
+.profile-dropdown-container:hover .profile-dropdown-menu {
+    /* ...make the MENU visible and animate it into place. */
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: block;
+    padding: 12px 18px;
+    font-size: 15px;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #f5f5f5;
+}
+
+/* Add this new rule for the dropdown divider */
+.dropdown-divider {
+    height: 1px;
+    background-color: #EAEAEA;
+    margin: 0px 0; /* Creates a bit of space above and below the line */
+}
+
+/* --- Logo 3D "Ruffle" Hover Animation Styles --- */
+
+.logo-link {
+    display: flex; /* Use flexbox to align letters */
+    perspective: 800px;
+}
+
+.logo-link span {
+    display: inline-block;
+    cursor: pointer;
+    transform-style: preserve-d;
+    
+    /* Set a base transition for when the mouse leaves */
+    transition: transform 0.4s ease-in-out;
+}
+
+/* 
+  The "Ruffle" Effect using the General Sibling Combinator (~)
+  This says: "When I hover over a SPAN, find ALL sibling SPANs that come after it..."
+*/
+.logo-link:hover span:hover ~ span {
+    /* ...and apply NO transform to them yet. */
+    transform: rotateY(0deg); 
+}
+
+/* 
+  This is the main trigger. It says:
+  "When I hover over the main container (.logo-link)..."
+*/
+.logo-link:hover span {
+    /* "...apply the 3D spin to ALL letters." */
+    transform: rotateY(180deg);
+}
+
+/*
+  THE MAGIC: TRANSITION DELAYS
+  We apply a different, increasing delay to each letter.
+  This creates the cascading "ruffle" effect.
+*/
+.logo-link span:nth-child(1) { transition-delay: 0.0s; }
+.logo-link span:nth-child(2) { transition-delay: 0.05s; }
+.logo-link span:nth-child(3) { transition-delay: 0.1s; }
+.logo-link span:nth-child(4) { transition-delay: 0.15s; }
+.logo-link span:nth-child(5) { transition-delay: 0.2s; }
+.logo-link span:nth-child(6) { transition-delay: 0.25s; }
+.logo-link span:nth-child(7) { transition-delay: 0.3s; }
+.logo-link span:nth-child(8) { transition-delay: 0.35s; }
+
+/* 
+  When the mouse leaves the container, we want the letters
+  to flip back in the reverse order for a nice effect.
+*/
+.logo-link span {
+    transition-delay: 0s; /* Reset delay by default */
+}
+/* When hovering, we use the delays above. When not hovering, 
+   we can reverse the delays for the transition *out*. */
+.logo-link:not(:hover) span:nth-child(1) { transition-delay: 0.35s; }
+.logo-link:not(:hover) span:nth-child(2) { transition-delay: 0.3s; }
+.logo-link:not(:hover) span:nth-child(3) { transition-delay: 0.25s; }
+.logo-link:not(:hover) span:nth-child(4) { transition-delay: 0.2s; }
+.logo-link:not(:hover) span:nth-child(5) { transition-delay: 0.15s; }
+.logo-link:not(:hover) span:nth-child(6) { transition-delay: 0.1s; }
+.logo-link:not(:hover) span:nth-child(7) { transition-delay: 0.05s; }
+.logo-link:not(:hover) span:nth-child(8) { transition-delay: 0.0s; }
+
+
+/* Make sure product links in grids have no underline */
+a.product-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* --- Reusable Back Link Style --- */
+.page-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    color: #555;
+    text-decoration: none;
+    margin-bottom: 30px;
+    transition: color 0.2s;
+}
+.page-back-link:hover {
+    color: #000;
+}

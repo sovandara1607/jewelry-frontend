@@ -1,0 +1,40 @@
+/* --- Order Success Page Styles --- */
+.success-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 60vh; /* Ensures it takes up a good amount of vertical space */
+    padding: 40px 20px;
+}
+
+.success-message h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 32px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.back-to-home-prompt {
+    margin-top: 40px;
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 15px;
+}
+
+.home-btn {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 14px 60px;
+    font-size: 15px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.home-btn:hover {
+    opacity: 0.85;
+}

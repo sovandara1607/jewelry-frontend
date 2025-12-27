@@ -1,0 +1,30 @@
+/* --- Public Seller Page Styles --- */
+
+/* Import the styles we can reuse from profile.css */
+@import url('profile.css');
+@import url('shop.css'); /* We need the product grid styles */
+
+.seller-page-container {
+    max-width: 900px; 
+    margin: 0 auto;
+    padding: 40px 20px 80px 20px;
+}
+
+
+
+.seller-products-header {
+    margin-top: 50px;
+    border-bottom: 1px solid #EAEAEA;
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+}
+.seller-products-header h3 {
+    font-size: 18px; 
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #333;
+}
+
+
+/* We will reuse the .shop-product-grid from shop.css */

@@ -1,0 +1,375 @@
+/* --- Shop Page Specific Styles --- */
+.shop-page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* --- Shop Header --- */
+.shop-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.shop-header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 700;
+    letter-spacing: 2px;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.shop-header p {
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+    font-size: 14px;
+    color: #666;
+}
+
+/* In shop.css */
+
+/* --- Shop Controls --- */
+.shop-controls {
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+    border-bottom: 1px solid #EAEAEA;
+    padding-bottom: 20px;
+    /* We REMOVED justify-content from here */
+}
+
+/* THIS IS THE NEW, IMPORTANT RULE */
+.shop-controls .filter-sort-controls {
+    margin-left: auto; /* This pushes the element to the far right */
+}
+
+
+
+
+
+/* .search-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-bar input {
+    border: none;
+    border-bottom: 1px solid #ccc;
+    padding: 8px 30px 8px 0;
+    font-size: 14px;
+    background: transparent;
+}
+.search-bar input:focus {
+    outline: none;
+    border-bottom-color: #333;
+}
+
+.search-bar button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    right: 0;
+    color: #888;
+} */
+
+.filter-sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.sort-by label {
+    font-size: 14px;
+    color: #666;
+    margin-right: 8px;
+}
+
+.sort-by select {
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+/* --- Shop Product Grid --- */
+.shop-product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+}
+
+.product-card {
+    text-align: center;
+}
+
+
+.product-image-container {
+    background-color: #F9F9F9;
+    margin-bottom: 15px;
+    aspect-ratio: 1 / 1;
+    position: relative;
+    overflow: hidden; 
+
+}
+
+.product-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+     transform: scale(1.2); 
+    
+    transition: transform 0.3s ease;
+}
+
+/* Optional but recommended: Add a subtle zoom effect on hover */
+/*.product-card a:hover .product-image-container img {
+    transform: scale(1.05);
+} */
+
+.product-info .product-name {
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 0 0 5px 0;
+    color: #666;
+}
+
+.product-info .product-price {
+    font-size: 14px;
+    color: #333;
+    margin: 0;
+}
+
+.featured-icon {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: #000;
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+
+/* --- Responsive Styles for Shop Page --- */
+@media (max-width: 992px) {
+    .shop-product-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* In shop.css */
+@media (max-width: 768px) {
+    .shop-product-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* DELETE OR COMMENT OUT THIS RULE if it exists */
+    .shop-controls {
+        flex-direction: column;
+        align-items: flex-end; 
+        gap: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .filter-sort-controls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+}
+
+/* --- Add these styles for the Filter Overlay --- */
+
+/* This class will be toggled by JS to prevent background scrolling */
+body.overflow-hidden {
+    overflow: hidden;
+}
+
+.filter-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.filter-overlay.is-active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.filter-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    max-width: 380px;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    transform: translateX(100%);
+    transition: transform 0.4s ease-in-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-overlay.is-active .filter-panel {
+    transform: translateX(0);
+}
+
+.filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid #EAEAEA;
+}
+
+.filter-header h3 {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.close-filter-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    line-height: 0;
+}
+
+.filter-body {
+    padding: 25px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.filter-group summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #f5f5f5;
+    cursor: pointer;
+    font-weight: 500;
+    list-style: none; /* Hide default triangle */
+}
+.filter-group summary::-webkit-details-marker {
+    display: none; /* Hide default triangle for Chrome/Safari */
+}
+.filter-group summary .chevron-down {
+    transition: transform 0.2s ease-in-out;
+}
+.filter-group[open] summary .chevron-down {
+    transform: rotate(180deg);
+}
+
+.filter-categories {
+    list-style: none;
+    padding: 10px 0 0 0;
+    margin: 0;
+}
+
+.filter-categories li a {
+    display: block;
+    padding: 12px 15px;
+    color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.filter-categories li a:hover {
+    background-color: #f0f0f0;
+}
+
+/* --- Utility Class --- */
+.hidden {
+    display: none !important;
+}
+
+
+/* --- Custom Styles for Sort By Dropdown --- */
+
+.sort-by .custom-select-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+/* This targets the <select> element itself */
+.sort-by select {
+    /* These three lines hide the default browser arrow */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    /* General styling */
+    padding: 8px 32px 8px 12px; /* Add padding on the right for your custom icon */
+    font-size: 14px;
+    font-family: inherit;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    outline: none; /* Removes focus outline */
+}
+
+/* This positions your custom SVG icon */
+.sort-by .dropdown-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* Allows clicks to go "through" the icon to the select box */
+    color: #555;
+}
+
+.product-image-container .sold-out-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent white */
+    z-index: 5; /* Sits above the image but below other hover effects */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sold-out-overlay span {
+    background-color: #333333ba;
+    color: white;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    border-radius: px;
+}

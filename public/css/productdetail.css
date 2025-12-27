@@ -1,0 +1,287 @@
+/* --- Product Detail Page Styles --- */
+.product-page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px 80px 20px;
+}
+
+.breadcrumbs {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 30px;
+}
+
+.breadcrumbs a {
+    color: #555;
+    text-decoration: none;
+}
+.breadcrumbs a:hover {
+    text-decoration: underline;
+}
+
+.product-layout {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 60px;
+}
+
+/* --- Image Gallery --- */
+.image-gallery {
+    display: grid;
+    grid-template-columns: 80px 1fr; /* Thumbnails column and Main image column */
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.thumbnail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.thumbnail-item {
+    aspect-ratio: 1 / 1;
+    background-color: #F9F9F9;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+.thumbnail-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.2); 
+}
+.thumbnail-item.active {
+    border-color: #333;
+}
+
+.main-image-container {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background-color: #F9F9F9;
+}
+.main-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    
+}
+
+.gallery-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.7);
+    border: 1px solid #eee;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+.gallery-arrow.prev { left: 15px; }
+.gallery-arrow.next { right: 15px; }
+
+/* --- Product Info --- */
+.product-details {
+    display: flex;
+    flex-direction: column;
+}
+.product-title-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+.product-details h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 600;
+    margin: 0;
+}
+.wishlist-btn {
+    background: none; border: none; cursor: pointer; padding: 5px;
+}
+
+.product-price {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+.product-stock {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 30px;
+}
+.add-to-bag-btn {
+    width: 100%;
+    background-color: #000;
+    color: #fff;
+    padding: 18px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    margin-bottom: 40px;
+    transition: opacity 0.2s;
+}
+.add-to-bag-btn:hover { opacity: 0.85; }
+
+/* --- Accordion --- */
+.description-accordion details {
+    border-top: 1px solid #EAEAEA;
+    padding: 20px 0;
+}
+.description-accordion details:last-of-type {
+    border-bottom: 1px solid #EAEAEA;
+}
+.description-accordion summary {
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none; /* Hide default marker */
+    display: flex;
+    justify-content: space-between;
+}
+.description-accordion summary::after {
+    content: '—'; /* Minus sign for open state */
+}
+.description-accordion details:not([open]) summary::after {
+    content: '+';
+}
+.description-accordion .description-content {
+    padding-top: 20px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #555;
+}
+.description-accordion .description-content ul {
+    list-style-position: inside;
+    padding-left: 0;
+}
+
+.product-id {
+    font-size: 13px;
+    color: #888;
+    margin-top: 20px;
+}
+
+/* --- Seller Info --- */
+.seller-info-card {
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #FAFAFA;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.seller-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #E0E0E0;
+    flex-shrink: 0;
+}
+.seller-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+.seller-details .shop-name {
+    font-weight: 600;
+}
+.seller-details .handle, .seller-details .location {
+    font-size: 14px;
+    color: #666;
+}
+
+/* ADD THESE STYLES FOR THE BACK LINK */
+
+.back-link {
+    display: inline-block;
+    color: #333;
+    margin-bottom: 25px;
+}
+
+.back-link svg {
+    transition: transform 0.2s ease-in-out;
+}
+
+.back-link:hover svg {
+    transform: translateX(-3px);
+}
+a.seller-info-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* --- Style for the disabled Sold Out button --- */
+.sold-out-btn {
+    background-color: #A1A1AA; /* A muted gray color */
+    color: #E4E4E7;
+    cursor: not-allowed; /* Shows a "not allowed" cursor on hover */
+    opacity: 0.7;
+}
+
+.sold-out-btn:hover {
+    opacity: 0.7; /* Prevent hover effect */
+}
+/* --- Kebab Menu Dropdown Styles --- */
+.product-actions-dropdown {
+    position: relative; /* Anchor for the menu */
+    margin-left: auto; /* Pushes the menu to the right */
+}
+
+.kebab-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: #555;
+}
+.kebab-toggle:hover {
+    color: #000;
+}
+
+.kebab-menu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 5px;
+    background-color: #ffffff;
+    border: 1px solid #EAEAEA;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+    width: 180px;
+    z-index: 100;
+    overflow: hidden;
+}
+.kebab-menu.is-active {
+    display: block;
+}
+
+/* Style for both links and buttons inside the menu */
+.kebab-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px 18px;
+    font-size: 15px;
+    color: #333;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.kebab-item:hover {
+    background-color: #f5f5f5;
+}
+
+.kebab-item.danger {
+    color: #DC2626; /* Red for destructive actions */
+}
+.kebab-item.danger:hover {
+    background-color: #d62525;
+    color: white;
+}

@@ -1,0 +1,119 @@
+/* --- Shopping Cart Page Styles --- */
+.cart-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px 80px 20px;
+}
+
+.cart-title {
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #333;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #EAEAEA;
+    margin-bottom: 40px;
+}
+
+.cart-shop-group {
+    margin-bottom: 40px;
+}
+
+.cart-shop-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.cart-shop-header .shop-name {
+    font-weight: 600;
+}
+.cart-shop-header .shop-handle {
+    font-size: 14px;
+    color: #666;
+}
+
+.cart-shop-header .arrow-icon {
+    color: #888;
+}
+
+.cart-item {
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    gap: 20px;
+    align-items: center;
+    padding-left: 20px;
+}
+
+.cart-item-image {
+    width: 120px;
+    height: 120px;
+    background-color: #F9F9F9;
+}
+.cart-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cart-item-details .item-name {
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 1px;
+    font-weight: 500;
+}
+.cart-item-details .item-price {
+    font-size: 15px;
+    color: #555;
+    margin-top: 5px;
+}
+
+.cart-item-actions {
+    text-align: right;
+}
+.cart-item-actions .remove-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+}
+.cart-item-actions .remove-btn:hover {
+    color: #000;
+}
+.cart-item-actions .item-subtotal {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 30px;
+}
+
+.cart-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-top: 40px;
+}
+
+.checkout-btn {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 16px 40px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.checkout-btn:hover {
+    opacity: 0.85;
+}
+
+.cart-total {
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: 600;
+}
+.total-label {
+    color: #555;
+    margin-right: 10px;
+}
