@@ -4,32 +4,62 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class UserController extends Controller
 {
-     public function showProfile()
+    public function showProfile()
     {
         $user = Auth::user();
-        // 1. Get PENDING orders placed by this user
-    $pendingOrders = $user->orders()
-    ->where('status', 'Pending')
-    ->with('items.product.images')->get();
+        $apiUrl = config('services.api.url');
+        $token = session('api_token');
 
-    // 2. Get CONFIRMED orders placed by this user
-    $confirmedOrders = $user->orders()
-    ->where('status', 'Confirmed')
-    ->with('items.product.shop')->get();
+        if (!$token) {
+            return redirect()->route('login');
+        }
 
+        $response = Http::withToken($token)->get("{$apiUrl}/api/user/orders");
 
-        // Get the user's orders. This will be an empty collection for now.
-        // We assume an 'orders' relationship exists on the User model.
-        $orders = $user->orders()->latest()->get(); 
+        if ($response->failed()) {
+            return view('profile', [
+                'user' => $user,
+                'orders' => collect([]),
+                'pendingOrders' => collect([]),
+                'confirmedOrders' => collect([]),
+            ])->withErrors(['api' => 'API server is not available.']);
+        }
+
+        $data = $response->json();
+
+        $pendingOrders = collect($data['pendingOrders'] ?? [])->map(function ($o) {
+            return (object) array_merge($o, [
+                'items' => collect($o['items'] ?? [])->map(function ($item) {
+                    return (object) array_merge($item, [
+                        'product' => (object) array_merge($item['product'] ?? [], [
+                            'images' => collect($item['product']['images'] ?? [])->map(fn($i) => (object) $i),
+                        ]),
+                    ]);
+                }),
+            ]);
+        });
+
+        $confirmedOrders = collect($data['confirmedOrders'] ?? [])->map(function ($o) {
+            return (object) array_merge($o, [
+                'items' => collect($o['items'] ?? [])->map(function ($item) {
+                    return (object) array_merge($item, [
+                        'product' => (object) array_merge($item['product'] ?? [], [
+                            'shop' => isset($item['product']['shop']) ? (object) $item['product']['shop'] : null,
+                        ]),
+                    ]);
+                }),
+            ]);
+        });
 
         return view('profile', [
             'user' => $user,
             'orders' => $confirmedOrders,
             'pendingOrders' => $pendingOrders,
-        'confirmedOrders' => $confirmedOrders
+            'confirmedOrders' => $confirmedOrders,
         ]);
     }
 }

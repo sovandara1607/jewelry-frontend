@@ -2,19 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Storage; 
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
     public function edit(Request $request): View
     {
         return view('profile.edit', [
@@ -22,61 +19,93 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update the user's profile information.
-     */
     public function updateAvatar(Request $request): RedirectResponse
     {
         $request->validate([
-            'profilepic' => 'required|image|max:2048', // Must be an image, max 2MB
+            'profilepic' => 'required|image|max:2048',
         ]);
 
         $user = $request->user();
+        $apiUrl = config('services.api.url');
+        $token = session('api_token');
 
-        // Delete old avatar if it exists
+        // Delete old avatar locally if exists
         if ($user->profilepic) {
             Storage::disk('public')->delete($user->profilepic);
         }
 
-        // Store the new avatar
+        // Store new avatar locally
         $path = $request->file('profilepic')->store('avatars', 'public');
 
-        // Update the user's profilepic column
+        // Update locally for immediate UI response
         $user->profilepic = $path;
         $user->save();
+
+        // Update in API
+        Http::withToken($token)->post("{$apiUrl}/api/user/avatar", [
+            'profilepic_path' => $path,
+        ]);
 
         return Redirect::route('profile')->with('status', 'avatar-updated');
     }
 
-      public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request): RedirectResponse
     {
-        // This gets the validated data from the form request
-        $request->user()->fill($request->validated());
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|lowercase|email|max:255',
+            'phonenumber' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+        ]);
 
-        // If the user changed their email, we need to reset the verification status
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $apiUrl = config('services.api.url');
+        $token = session('api_token');
+
+        $response = Http::withToken($token)->patch("{$apiUrl}/api/user/profile", [
+            'name' => $request->name,
+            'email' => $request->email,
+            'phonenumber' => $request->phonenumber,
+            'address' => $request->address,
+        ]);
+
+        if ($response->failed()) {
+            $errors = $response->json('errors') ?? [];
+            if ($errors) {
+                return back()->withErrors($errors)->withInput();
+            }
+            return back()->withErrors(['api' => 'Failed to update profile.'])->withInput();
         }
 
-        // Save the changes to the database
-        $request->user()->save();
+        // Sync local user
+        $user = $request->user();
+        $user->fill([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phonenumber' => $request->phonenumber,
+            'address' => $request->address,
+        ]);
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+        $user->save();
 
         return Redirect::route('profile')->with('status', 'profile-updated');
     }
 
-    /**
-     * Delete the user's account.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],
         ]);
 
+        $apiUrl = config('services.api.url');
+        $token = session('api_token');
+
+        // Delete profile via API
+        Http::withToken($token)->delete("{$apiUrl}/api/user/profile");
+
         $user = $request->user();
-
         Auth::logout();
-
         $user->delete();
 
         $request->session()->invalidate();

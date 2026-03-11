@@ -29,14 +29,14 @@ class Product extends Model
      * We must override the default 'created_at'.
      * @var string
      */
-    const CREATED_AT = 'Date_created';
+    const CREATED_AT = 'date_created';
 
     /**
      * The name of the "updated at" column.
      * We must override the default 'updated_at'.
      * @var string
      */
-    const UPDATED_AT = 'Date_updated';
+    const UPDATED_AT = 'date_updated';
 
     /**
      * The attributes that are mass assignable.

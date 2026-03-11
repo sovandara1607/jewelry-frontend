@@ -1,5 +1,7 @@
 <?php
+
 namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
 use App\Models\Product; // Make sure to import your Product model
 
@@ -8,18 +10,18 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         Product::create([
-            'name' => 'Ronda Earrings',
-            'category' => 'earrings',
-            'price' => 135.00,
+            'product_name' => 'Ronda Earrings',
+            'product_category' => 'earrings',
+            'product_price' => 135.00,
             'product_images' => '/images/earrings-ronda-silver.jpg',
-            // Add any other required fields like shop_id if necessary
+            'shop_id' => 1,
         ]);
         Product::create([
-            'name' => 'Bumble Bee Brooch',
-            'category' => 'brooch',
-            'price' => 125.00,
+            'product_name' => 'Bumble Bee Brooch',
+            'product_category' => 'brooch',
+            'product_price' => 125.00,
             'product_images' => '/images/brooch-bee.jpg',
+            'shop_id' => 1,
         ]);
-        // Add a few more products...
     }
 }

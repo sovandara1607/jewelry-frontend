@@ -22,11 +22,10 @@ return new class extends Migration
             $table->string('admin_email', 100)->unique();
 
             // Corresponds to Admin_password, varchar(255)
-            $table->string('admin_password');
+            $table->string('password');
 
-            // Corresponds to your custom-named timestamp columns
-            $table->dateTime('date_created');
-            $table->dateTime('date_updated');
+            $table->rememberToken();
+            $table->timestamps();
         });
     }
 

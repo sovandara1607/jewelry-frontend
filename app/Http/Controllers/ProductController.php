@@ -2,176 +2,180 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product; // Import the Product model
-use App\Models\Shop;    // Import the Shop model
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
-    /**
-     * Show the form for creating a new product listing.
-     */
     public function create()
     {
         return view('products.create');
     }
 
-    /**
-     * Display a single product detail page.
-     */
-    public function show(Product $product)
+    public function show($product)
     {
+        $apiUrl = config('services.api.url');
+        $response = Http::get("{$apiUrl}/api/product/{$product}");
 
-        $product->load('images');
-        $seller = $product->shop; // Assumes a 'shop' relationship exists on the Product model
+        if ($response->failed()) {
+            abort(404);
+        }
+
+        $data = $response->json();
+        $prod = (object) array_merge($data['product'], [
+            'images' => collect($data['product']['images'] ?? [])->map(fn($i) => (object) $i),
+        ]);
+        $seller = $data['seller'] ? (object) $data['seller'] : null;
 
         return view('products.show', [
-            'product' => $product,
-            'seller' => $seller
+            'product' => $prod,
+            'seller' => $seller,
         ]);
     }
 
-    /**
-     * Store a newly created product in storage.
-     */
     public function store(Request $request)
     {
-
-        // 1. Validate the incoming data
-        // The keys must match the `name` attributes in your form
-        $validatedData = $request->validate([
+        $request->validate([
             'product_name' => 'required|string|max:100',
             'product_category' => 'required|string|max:50',
             'product_price' => 'required|numeric|min:0',
             'product_description' => 'nullable|string',
             'product_images' => 'required|array',
-            'product_images.*' => 'image|mimes:jpeg,png,jpg,gif,webp,svg|max:10240'
+            'product_images.*' => 'image|mimes:jpeg,png,jpg,gif,webp,svg|max:10240',
         ]);
 
-        // 2. Create the main product record using the correct column names
-        $product = Product::create([
-            'shop_id' => Auth::user()->shop->shop_id, // Use the correct primary key name
-            'product_name' => $validatedData['product_name'],
-            'product_category' => $validatedData['product_category'],
-            'product_price' => $validatedData['product_price'],
-            'product_description' => $validatedData['product_description'],
-            'in_stock' => 1,
-        ]);
+        $apiUrl = config('services.api.url');
+        $token = session('api_token');
 
-
-        // 3. Handle the image uploads
+        // Store images locally for serving
+        $imagePaths = [];
         if ($request->hasFile('product_images')) {
             foreach ($request->file('product_images') as $file) {
-                $path = $file->store('product-images', 'public');
-
-                $product->images()->create([
-                    'image_path' => $path,
-                    'product_id' => $product->Product_id
-                ]);
+                $imagePaths[] = $file->store('product-images', 'public');
             }
         }
 
-        // 4. Redirect the user
+        $response = Http::withToken($token)->post("{$apiUrl}/api/product", [
+            'product_name' => $request->product_name,
+            'product_category' => $request->product_category,
+            'product_price' => $request->product_price,
+            'product_description' => $request->product_description,
+            'image_paths' => $imagePaths,
+        ]);
+
+        if ($response->failed()) {
+            // Clean up locally stored images on failure
+            foreach ($imagePaths as $path) {
+                Storage::disk('public')->delete($path);
+            }
+            $errors = $response->json('errors') ?? [];
+            if ($errors) {
+                return back()->withErrors($errors)->withInput();
+            }
+            return back()->withErrors(['api' => 'Failed to create product. API may be unavailable.'])->withInput();
+        }
+
         return redirect()->route('shops.dashboard')->with('status', 'New listing added successfully!');
     }
 
-    public function edit(Product $product)
+    public function edit($product)
     {
-        // Authorization Check: Make sure the logged-in user owns this product
-        if (Auth::user()->shop?->shop_id !== $product->shop_id) {
-            abort(403, 'Unauthorized Action'); // Stop users from editing others' products
-        }
+        $apiUrl = config('services.api.url');
+        $token = session('api_token');
 
-        return view('products.edit', ['product' => $product]);
-    }
-    /**
-     * Update the specified product in storage.
-     */
-    public function update(Request $request, Product $product)
-    {
-        // Authorization Check
-        if (Auth::user()->shop?->shop_id !== $product->shop_id) {
+        $response = Http::withToken($token)->get("{$apiUrl}/api/product/{$product}/edit");
+
+        if ($response->failed()) {
             abort(403, 'Unauthorized Action');
         }
 
-        // Validate the incoming data (same as store, but 'unique' rule needs adjustment)
-        $validatedData = $request->validate([
+        $prod = (object) $response->json('product');
+
+        return view('products.edit', ['product' => $prod]);
+    }
+
+    public function update(Request $request, $product)
+    {
+        $request->validate([
             'product_name' => 'required|string|max:100',
             'product_category' => 'required|string|max:50',
             'product_price' => 'required|numeric|min:0',
             'product_description' => 'nullable|string',
         ]);
 
-        // Update the product
-        $product->update($validatedData);
+        $apiUrl = config('services.api.url');
+        $token = session('api_token');
 
-        return redirect()->route("shops.dashboard")->with('status', 'Listing updated successfully!');
-    }
-    /**
-     * Add new images to an existing product.
-     */
-    public function addImages(Request $request, Product $product)
-    {
-        // Authorization check...
-
-        $request->validate([
-            'product_images' => 'required|array',
-            'product_images.*' => 'image|max:2048'
+        $response = Http::withToken($token)->patch("{$apiUrl}/api/products/{$product}", [
+            'product_name' => $request->product_name,
+            'product_category' => $request->product_category,
+            'product_price' => $request->product_price,
+            'product_description' => $request->product_description,
         ]);
 
+        if ($response->failed()) {
+            return back()->withErrors(['api' => 'Failed to update product.'])->withInput();
+        }
+
+        return redirect()->route('shops.dashboard')->with('status', 'Listing updated successfully!');
+    }
+
+    public function addImages(Request $request, $product)
+    {
+        $request->validate([
+            'product_images' => 'required|array',
+            'product_images.*' => 'image|max:2048',
+        ]);
+
+        $apiUrl = config('services.api.url');
+        $token = session('api_token');
+
+        // Store images locally
+        $imagePaths = [];
         if ($request->hasFile('product_images')) {
             foreach ($request->file('product_images') as $file) {
-                $path = $file->store('product-images', 'public');
-                $product->images()->create(['image_path' => $path]);
+                $imagePaths[] = $file->store('product-images', 'public');
             }
+        }
+
+        $response = Http::withToken($token)->post("{$apiUrl}/api/products/{$product}/images", [
+            'image_paths' => $imagePaths,
+        ]);
+
+        if ($response->failed()) {
+            return back()->withErrors(['api' => 'Failed to add images.']);
         }
 
         return back()->with('status', 'New images added!');
     }
 
-    /**
-     * Delete a specific product image.
-     */
-    public function deleteImage(Product $product, \App\Models\ProductImage $image)
+    public function deleteImage($product, $image)
     {
-        // Authorization check...
+        $apiUrl = config('services.api.url');
+        $token = session('api_token');
 
-        // Delete the file from storage
-        Storage::disk('public')->delete($image->image_path);
+        $response = Http::withToken($token)->delete("{$apiUrl}/api/products/{$product}/images/{$image}");
 
-        // Delete the record from the database
-        $image->delete();
+        if ($response->failed()) {
+            return back()->withErrors(['api' => 'Failed to delete image.']);
+        }
 
         return back()->with('status', 'Image deleted!');
     }
 
-    /**
- * Remove the specified product from storage.
- */
-public function destroy(Product $product)
-{
-    // Authorization: Make sure the logged-in user owns this product
-    if (Auth::user()->shop?->shop_id !== $product->shop_id) {
-        abort(403, 'Unauthorized Action');
-    }
+    public function destroy($product)
+    {
+        $apiUrl = config('services.api.url');
+        $token = session('api_token');
 
-    // Use a transaction to be safe
-    DB::transaction(function () use ($product) {
-        // 1. Delete the physical image files from storage
-        foreach ($product->images as $image) {
-            Storage::disk('public')->delete($image->image_path);
+        $response = Http::withToken($token)->delete("{$apiUrl}/api/products/{$product}");
+
+        if ($response->failed()) {
+            return back()->withErrors(['api' => 'Failed to delete product.']);
         }
-        
-        // 2. Delete the product record from the database.
-        //    Because of 'onDelete('cascade')' in your migration, this will also
-        //    delete all related records from 'product_images' and 'orderitem'.
-        $product->delete();
-    });
 
-    // Redirect to the seller's dashboard with a success message
-    return redirect()->route('shops.dashboard')->with('status', 'Listing has been deleted.');
-}
+        return redirect()->route('shops.dashboard')->with('status', 'Listing has been deleted.');
+    }
 }
