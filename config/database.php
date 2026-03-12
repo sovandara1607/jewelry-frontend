@@ -85,11 +85,31 @@ return [
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '5432'),
+
+            'read' => [
+                [
+                    'host' => env('DB_READ_HOST_1', env('DB_HOST', '127.0.0.1')),
+                    'port' => env('DB_READ_PORT_1', env('DB_PORT', '5432')),
+                    'username' => env('DB_READ_USERNAME_1', env('DB_USERNAME', 'root')),
+                    'password' => env('DB_READ_PASSWORD_1', env('DB_PASSWORD', '')),
+                ],
+                [
+                    'host' => env('DB_READ_HOST_2', env('DB_HOST', '127.0.0.1')),
+                    'port' => env('DB_READ_PORT_2', env('DB_PORT', '5432')),
+                    'username' => env('DB_READ_USERNAME_2', env('DB_USERNAME', 'root')),
+                    'password' => env('DB_READ_PASSWORD_2', env('DB_PASSWORD', '')),
+                ],
+            ],
+
+            'write' => [
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '5432'),
+                'username' => env('DB_USERNAME', 'root'),
+                'password' => env('DB_PASSWORD', ''),
+            ],
+
+            'sticky' => true,
             'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''),
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
@@ -147,7 +167,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
         'default' => [
