@@ -72,24 +72,17 @@ class ProductController extends Controller
             return back()->withErrors(['api' => 'Product created but no ID returned'])->withInput();
         }
 
-        // Now upload images separately
+        // Upload images one by one - API might expect single file uploads
         if ($request->hasFile('product_images')) {
-            $httpRequest = Http::withToken($token);
-
             foreach ($request->file('product_images') as $index => $file) {
-                $httpRequest = $httpRequest->attach(
-                    "product_images[{$index}]",
-                    file_get_contents($file->getRealPath()),
-                    $file->getClientOriginalName()
-                );
-            }
+                $imageResponse = Http::withToken($token)
+                    ->attach('image', file_get_contents($file->getRealPath()), $file->getClientOriginalName())
+                    ->post("{$apiUrl}/api/products/{$productId}/images");
 
-            $imageResponse = $httpRequest->post("{$apiUrl}/api/products/{$productId}/images");
-
-            if ($imageResponse->failed()) {
-                // Product created but images failed - show warning but don't fail completely
-                return redirect()->route('shops.dashboard')
-                    ->with('warning', 'Product created but images failed to upload: ' . $imageResponse->body());
+                if ($imageResponse->failed()) {
+                    return redirect()->route('shops.dashboard')
+                        ->with('warning', 'Product created but image #' . ($index + 1) . ' failed: ' . $imageResponse->body());
+                }
             }
         }
 
