@@ -72,16 +72,13 @@ class ProductController extends Controller
             return back()->withErrors(['api' => 'Product created but no ID returned'])->withInput();
         }
 
-        // Upload images one by one - API might expect single file uploads
+        // Upload images one by one - API might expect different field names
         if ($request->hasFile('product_images')) {
             foreach ($request->file('product_images') as $index => $file) {
-                $imageResponse = Http::withToken($token)
-                    ->attach('image', file_get_contents($file->getRealPath()), $file->getClientOriginalName())
-                    ->post("{$apiUrl}/api/products/{$productId}/images");
-
-                if ($imageResponse->failed()) {
+                $error = $this->uploadProductImage($apiUrl, $token, $productId, $file, $index);
+                if ($error) {
                     return redirect()->route('shops.dashboard')
-                        ->with('warning', 'Product created but image #' . ($index + 1) . ' failed: ' . $imageResponse->body());
+                        ->with('warning', 'Product created but image #' . ($index + 1) . ' failed: ' . $error);
                 }
             }
         }
@@ -146,12 +143,9 @@ class ProductController extends Controller
 
         if ($request->hasFile('product_images')) {
             foreach ($request->file('product_images') as $index => $file) {
-                $imageResponse = Http::withToken($token)
-                    ->attach('image', file_get_contents($file->getRealPath()), $file->getClientOriginalName())
-                    ->post("{$apiUrl}/api/products/{$product}/images");
-
-                if ($imageResponse->failed()) {
-                    return back()->withErrors(['api' => 'Failed to add image #' . ($index + 1) . ': ' . $imageResponse->body()]);
+                $error = $this->uploadProductImage($apiUrl, $token, $product, $file, $index);
+                if ($error) {
+                    return back()->withErrors(['api' => 'Failed to add image #' . ($index + 1) . ': ' . $error]);
                 }
             }
         }
@@ -185,5 +179,37 @@ class ProductController extends Controller
         }
 
         return redirect()->route('shops.dashboard')->with('status', 'Listing has been deleted.');
+    }
+
+    private function uploadProductImage(string $apiUrl, string $token, int $productId, $file, int $index = 0): ?string
+    {
+        $fileContents = file_get_contents($file->getRealPath());
+        $fileName = $file->getClientOriginalName();
+        $fields = [
+            'image',
+            'product_image',
+            "product_images[{$index}]",
+            'product_images[]',
+        ];
+
+        $lastMessage = null;
+
+        foreach ($fields as $field) {
+            $response = Http::withToken($token)
+                ->attach($field, $fileContents, $fileName)
+                ->post("{$apiUrl}/api/products/{$productId}/images");
+
+            if ($response->ok()) {
+                return null;
+            }
+
+            $lastMessage = $response->json('message') ?? $response->body();
+
+            if ($response->status() !== 422) {
+                return $lastMessage ?: 'Failed to upload image.';
+            }
+        }
+
+        return $lastMessage ?: 'Failed to upload image.';
     }
 }
