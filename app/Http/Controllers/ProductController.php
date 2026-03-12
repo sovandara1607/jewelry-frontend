@@ -49,12 +49,23 @@ class ProductController extends Controller
         $apiUrl = config('services.api.url');
         $token = session('api_token');
 
-        // First, try creating product without images
-        $response = Http::withToken($token)->post("{$apiUrl}/api/product", [
+        $httpRequest = Http::withToken($token)->acceptJson();
+
+        if ($request->hasFile('product_images')) {
+            foreach ($request->file('product_images') as $file) {
+                $httpRequest = $httpRequest->attach(
+                    'product_images[]',
+                    file_get_contents($file->getRealPath()),
+                    $file->getClientOriginalName()
+                );
+            }
+        }
+
+        $response = $httpRequest->post("{$apiUrl}/api/product", [
             'product_name' => $request->product_name,
             'product_category' => $request->product_category,
             'product_price' => $request->product_price,
-            'product_description' => $request->product_description ?? '',
+            'product_description' => $request->product_description,
         ]);
 
         if ($response->failed()) {
@@ -63,25 +74,6 @@ class ProductController extends Controller
                 return back()->withErrors($errors)->withInput();
             }
             return back()->withErrors(['api' => 'Failed to create product: ' . $response->body()])->withInput();
-        }
-
-        $productData = $response->json();
-        $productPayload = $productData['product'] ?? [];
-        $productId = $productPayload['id'] ?? $productPayload['product_id'] ?? null;
-
-        if (!$productId) {
-            return back()->withErrors(['api' => 'Product created but no ID returned'])->withInput();
-        }
-
-        // Upload images one by one - API might expect different field names
-        if ($request->hasFile('product_images')) {
-            foreach ($request->file('product_images') as $index => $file) {
-                $error = $this->uploadProductImage($apiUrl, $token, $productId, $file, $index);
-                if ($error) {
-                    return redirect()->route('shops.dashboard')
-                        ->with('warning', 'Product created but image #' . ($index + 1) . ' failed: ' . $error);
-                }
-            }
         }
 
         return redirect()->route('shops.dashboard')->with('status', 'New listing added successfully!');
@@ -144,13 +136,25 @@ class ProductController extends Controller
 
         $resolvedProductId = $this->resolveProductId($apiUrl, $token, $product);
 
-        if ($request->hasFile('product_images')) {
-            foreach ($request->file('product_images') as $index => $file) {
-                $error = $this->uploadProductImage($apiUrl, $token, $resolvedProductId, $file, $index);
-                if ($error) {
-                    return back()->withErrors(['api' => 'Failed to add image #' . ($index + 1) . ': ' . $error]);
-                }
-            }
+        if (!$request->hasFile('product_images')) {
+            return back()->withErrors(['api' => 'Please select at least one image.']);
+        }
+
+        $httpRequest = Http::withToken($token)->acceptJson();
+
+        foreach ($request->file('product_images') as $file) {
+            $httpRequest = $httpRequest->attach(
+                'product_images[]',
+                file_get_contents($file->getRealPath()),
+                $file->getClientOriginalName()
+            );
+        }
+
+        $response = $httpRequest->post("{$apiUrl}/api/products/{$resolvedProductId}/images");
+
+        if ($response->failed()) {
+            $message = $response->json('message') ?? $response->body();
+            return back()->withErrors(['api' => 'Failed to add images: ' . $message]);
         }
 
         return back()->with('status', 'New images added!');
@@ -184,70 +188,14 @@ class ProductController extends Controller
         return redirect()->route('shops.dashboard')->with('status', 'Listing has been deleted.');
     }
 
-    private function uploadProductImage(string $apiUrl, string $token, $productId, $file, int $index = 0): ?string
-    {
-        $fileContents = file_get_contents($file->getRealPath());
-        if ($fileContents === false) {
-            return 'Could not read image file.';
-        }
-        $fileName = $file->getClientOriginalName();
-        $fields = [
-            'image',
-            'product_image',
-            'product_images',
-            "product_images[{$index}]",
-            'product_images[]',
-            'file',
-        ];
-
-        $endpoints = [
-            "{$apiUrl}/api/products/{$productId}/images",
-            "{$apiUrl}/api/product/{$productId}/images",
-            "{$apiUrl}/api/products/{$productId}/image",
-            "{$apiUrl}/api/product/{$productId}/image",
-        ];
-
-        $lastMessage = null;
-
-        foreach ($endpoints as $endpoint) {
-            foreach ($fields as $field) {
-                $response = Http::withToken($token)
-                    ->attach($field, $fileContents, $fileName)
-                    ->post($endpoint);
-
-                if ($response->ok()) {
-                    return null;
-                }
-
-                $status = $response->status();
-                $contentType = (string) $response->header('content-type');
-                if ($contentType && str_contains($contentType, 'text/html')) {
-                    $lastMessage = "HTTP {$status} from API.";
-                } else {
-                    $lastMessage = $response->json('message') ?? $response->body();
-                }
-
-                if ($status === 404) {
-                    break;
-                }
-
-                if ($status !== 422) {
-                    return $lastMessage ?: 'Failed to upload image.';
-                }
-            }
-        }
-
-        return $lastMessage ?: 'Failed to upload image.';
-    }
-
     private function resolveProductId(string $apiUrl, string $token, $product)
     {
         $productId = $product;
-        $response = Http::withToken($token)->get("{$apiUrl}/api/product/{$product}");
+        $response = Http::withToken($token)->acceptJson()->get("{$apiUrl}/api/product/{$product}");
 
         if ($response->ok()) {
             $payload = $response->json('product') ?? [];
-            $resolved = $payload['id'] ?? $payload['product_id'] ?? null;
+            $resolved = $payload['product_id'] ?? $payload['id'] ?? null;
             if (!empty($resolved)) {
                 $productId = $resolved;
             }
