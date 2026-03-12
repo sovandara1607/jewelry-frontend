@@ -49,24 +49,33 @@ class ProductController extends Controller
         $apiUrl = config('services.api.url');
         $token = session('api_token');
 
-        $httpRequest = Http::withToken($token)->acceptJson();
+        $multipart = [
+            ['name' => 'product_name', 'contents' => $request->product_name],
+            ['name' => 'product_category', 'contents' => $request->product_category],
+            ['name' => 'product_price', 'contents' => (string) $request->product_price],
+            ['name' => 'product_description', 'contents' => (string) ($request->product_description ?? '')],
+        ];
 
         if ($request->hasFile('product_images')) {
-            foreach ($request->file('product_images') as $index => $file) {
-                $httpRequest = $httpRequest->attach(
-                    "product_images[{$index}]",
-                    file_get_contents($file->getRealPath()),
-                    $file->getClientOriginalName()
-                );
+            foreach ($request->file('product_images') as $file) {
+                $stream = fopen($file->getRealPath(), 'r');
+                if ($stream === false) {
+                    return back()->withErrors(['api' => 'Could not read image file.'])->withInput();
+                }
+
+                $multipart[] = [
+                    'name' => 'product_images[]',
+                    'contents' => $stream,
+                    'filename' => $file->getClientOriginalName(),
+                    'headers' => ['Content-Type' => $file->getMimeType()],
+                ];
             }
         }
 
-        $response = $httpRequest->post("{$apiUrl}/api/product", [
-            'product_name' => $request->product_name,
-            'product_category' => $request->product_category,
-            'product_price' => $request->product_price,
-            'product_description' => $request->product_description,
-        ]);
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->asMultipart()
+            ->post("{$apiUrl}/api/product", $multipart);
 
         if ($response->failed()) {
             $errors = $response->json('errors') ?? [];
@@ -140,17 +149,26 @@ class ProductController extends Controller
             return back()->withErrors(['api' => 'Please select at least one image.']);
         }
 
-        $httpRequest = Http::withToken($token)->acceptJson();
+        $multipart = [];
 
-        foreach ($request->file('product_images') as $index => $file) {
-            $httpRequest = $httpRequest->attach(
-                "product_images[{$index}]",
-                file_get_contents($file->getRealPath()),
-                $file->getClientOriginalName()
-            );
+        foreach ($request->file('product_images') as $file) {
+            $stream = fopen($file->getRealPath(), 'r');
+            if ($stream === false) {
+                return back()->withErrors(['api' => 'Could not read image file.']);
+            }
+
+            $multipart[] = [
+                'name' => 'product_images[]',
+                'contents' => $stream,
+                'filename' => $file->getClientOriginalName(),
+                'headers' => ['Content-Type' => $file->getMimeType()],
+            ];
         }
 
-        $response = $httpRequest->post("{$apiUrl}/api/products/{$resolvedProductId}/images");
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->asMultipart()
+            ->post("{$apiUrl}/api/products/{$resolvedProductId}/images", $multipart);
 
         if ($response->failed()) {
             $message = $response->json('message') ?? $response->body();
