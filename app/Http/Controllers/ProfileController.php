@@ -25,26 +25,17 @@ class ProfileController extends Controller
             'profilepic' => 'required|image|max:2048',
         ]);
 
-        $user = $request->user();
         $apiUrl = config('services.api.url');
         $token = session('api_token');
 
-        // Delete old avatar locally if exists
-        if ($user->profilepic) {
-            Storage::disk('public')->delete($user->profilepic);
+        // Upload the actual image file to API server
+        $response = Http::withToken($token)
+            ->attach('profilepic', file_get_contents($request->file('profilepic')->getRealPath()), $request->file('profilepic')->getClientOriginalName())
+            ->post("{$apiUrl}/api/user/avatar");
+
+        if ($response->failed()) {
+            return Redirect::route('profile')->withErrors(['avatar' => 'Failed to update profile picture.']);
         }
-
-        // Store new avatar locally
-        $path = $request->file('profilepic')->store('avatars', 'public');
-
-        // Update locally for immediate UI response
-        $user->profilepic = $path;
-        $user->save();
-
-        // Update in API
-        Http::withToken($token)->post("{$apiUrl}/api/user/avatar", [
-            'profilepic_path' => $path,
-        ]);
 
         return Redirect::route('profile')->with('status', 'avatar-updated');
     }

@@ -236,28 +236,15 @@ class ShopController extends Controller
         if ($shopResp->failed() || !$shopResp->json('shop')) {
             return back()->withErrors(['api' => 'Could not find your shop.']);
         }
-        $shop = $shopResp->json('shop');
-        $shopId = $shop['shop_id'];
+        $shopId = $shopResp->json('shop.shop_id');
 
-        // Delete old picture locally if exists
-        if (!empty($shop['shop_profilepic'])) {
-            Storage::disk('public')->delete($shop['shop_profilepic']);
-        }
+        // Upload the actual image file to API server
+        $response = Http::withToken($token)
+            ->attach('shop_profilepic', file_get_contents($request->file('shop_profilepic')->getRealPath()), $request->file('shop_profilepic')->getClientOriginalName())
+            ->patch("{$apiUrl}/api/shops/{$shopId}/picture");
 
-        // Store new picture locally for serving
-        $path = $request->file('shop_profilepic')->store('shop-pictures', 'public');
-
-        // Update path in API
-        $response = Http::withToken($token)->post("{$apiUrl}/api/shops/{$shopId}/picture", [
-            'shop_profilepic_path' => $path,
-        ]);
-
-        // Even if API picture upload fails, at least update the path
         if ($response->failed()) {
-            // Fallback: try to update via patch
-            Http::withToken($token)->patch("{$apiUrl}/api/shops/{$shopId}", [
-                'shop_profilepic' => $path,
-            ]);
+            return back()->withErrors(['api' => 'Failed to update shop picture.']);
         }
 
         return redirect()->route('shops.dashboard')->with('status', 'Shop picture updated successfully!');
