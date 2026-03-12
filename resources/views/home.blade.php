@@ -29,7 +29,7 @@
                 @foreach ($products as $product)
                     <div class="product-card">
                         {{-- This link points to the 'products.show' route and passes the product's ID --}}
-                        <a href="{{ route('products.show', $product) }}" class="product-link">
+                        <a href="{{ route('products.show', $product->product_id) }}" class="product-link">
                             <div class="product-image-container">
                                 {{-- We get the first image from the collection to use as a thumbnail --}}
                                 <img src="{{ asset('storage/' . $product->images->first()?->image_path) }}"

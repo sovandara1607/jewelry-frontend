@@ -25,94 +25,94 @@ Route::post('/shops', [ShopController::class, 'store'])
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])
-    ->name('profile.edit');
+        ->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])
-    ->name('profile.update');
+        ->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])
-    ->name('profile.destroy');
+        ->name('profile.destroy');
     // Your custom avatar update route
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])
-    ->name('profile.avatar.update');
+        ->name('profile.avatar.update');
 
 
     // SHOP MANAGEMENT
     // SHOP DASHBOARD
     Route::get('/my-shop', [ShopController::class, 'dashboard'])
-    ->name('shops.dashboard');
+        ->name('shops.dashboard');
     //The logic would be: After a user successfully creates a shop, the backend would redirect them to this shops.dashboard route.
     //create shop page
     Route::get('/shops/create', [ShopController::class, 'create'])
-    ->name('shops.create');
+        ->name('shops.create');
     Route::get('/my-shop/edit', [ShopController::class, 'edit'])
-    ->name('shops.edit');
+        ->name('shops.edit');
     Route::patch('/my-shop', [ShopController::class, 'update'])
-    ->name('shops.update');
+        ->name('shops.update');
     Route::patch('/my-shop/picture', [ShopController::class, 'updatePicture'])
-    ->name('shops.picture.update');
+        ->name('shops.picture.update');
 
 
     // PRODUCT LISTING MANAGEMENT
     // CREATING A PRODUCT
     Route::get('/products/create', [ProductController::class, 'create'])
-    ->name('products.create');
+        ->name('products.create');
     Route::post('/products', [ProductController::class, 'store'])
-    ->name('products.store');
+        ->name('products.store');
     // FOR EDITING
     Route::get('/products/{product}/edit', [ProductController::class, 'edit'])
-    ->name('products.edit');
+        ->name('products.edit');
     Route::patch('/products/{product}', [ProductController::class, 'update'])
-    ->name('products.update');
+        ->name('products.update');
     // FOR DELETING A PRODUCT
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])
-    ->name('products.destroy');
+        ->name('products.destroy');
     // to handle adding new images to an existing product
     Route::post('/products/{product}/images', [ProductController::class, 'addImages'])
-    ->name('products.images.add');
+        ->name('products.images.add');
     // to handle deleting a specific image
     // Note: We need both the product and the image ID
-    Route::delete('/products/{product}/images/{image}', [ProductController::class, 'deleteImage'] )
-    ->name('products.images.delete');
+    Route::delete('/products/{product}/images/{image}', [ProductController::class, 'deleteImage'])
+        ->name('products.images.delete');
 
 
     // ADDING ITEMS TO THE CART
     Route::post('/cart/add/{product}', [CartController::class, 'add'])
-    ->name('cart.add');
+        ->name('cart.add');
     Route::post('/cart/remove/{product}', [CartController::class, 'remove'])
-    ->name('cart.remove');
+        ->name('cart.remove');
+    Route::post('/cart/clear', [CartController::class, 'clear'])
+        ->name('cart.clear');
 
 
     // ORDER PROCESSING
     Route::post('/order', [OrderController::class, 'store'])
-    ->name('order.store');
+        ->name('order.store');
     Route::get('/ordersuccess', [OrderController::class, 'success'])
-    ->name('order.success');
+        ->name('order.success');
     Route::post('/orders/accept/{orderItem}', [OrderController::class, 'accept'])
-    ->name('orders.accept');
+        ->name('orders.accept');
     Route::post('/orders/reject/{orderItem}', [OrderController::class, 'reject'])
-    ->name('orders.reject');
-
-
+        ->name('orders.reject');
 });
 
 
 Route::get('/', [HomeController::class, 'index']);
 // This route points the homepage URL '/' to the 'index' method in HomeController
 Route::get('/home', [HomeController::class, 'index'])
-->name('home');
+    ->name('home');
 
 // Shop All page
 Route::get('/shop', [ShopController::class, 'index'])
-->name('shop.index');
+    ->name('shop.index');
 
 // ROUTE for showing a single product
 Route::get('/products/{product}', [ProductController::class, 'show'])
-->name('products.show');
+    ->name('products.show');
 // ROUTE for the shopping cart
 Route::get('/cart', [CartController::class, 'index'])
-->name('cart.index');
+    ->name('cart.index');
 // ROUTE for the public-facing shop page
 Route::get('/shops/{handle}', [ShopController::class, 'showPublic'])
-->name('shops.public');
+    ->name('shops.public');
 
 
 require __DIR__ . '/auth.php';

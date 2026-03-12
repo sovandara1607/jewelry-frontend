@@ -43,7 +43,7 @@
 
 <div class="form-page-container">
     <div class="back-link-wrapper">
-        <a href="{{ route('products.show', $product) }}" class="back-link">
+        <a href="{{ route('products.show', $product->product_id) }}" class="back-link">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
             <span>Back to Product Page</span>
         </a>
@@ -53,7 +53,7 @@
 
          
         {{-- The main form now points to the 'products.update' route --}}
-        <form action="{{ route('products.update', $product) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('products.update', $product->product_id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PATCH') {{-- This tells Laravel to treat it as an update request --}}
 
@@ -103,7 +103,7 @@
             @forelse ($product->images as $image)
                 <div class="current-image-item">
                     <img src="{{ asset('storage/' . $image->image_path) }}" alt="Current product image">
-                    <form action="{{ route('products.images.delete', ['product' => $product, 'image' => $image->image_id]) }}" 
+                    <form action="{{ route('products.images.delete', ['product' => $product->product_id, 'image' => $image->image_id]) }}" 
                     method="POST" onsubmit="return confirm('Are you sure?');">
     @csrf
     @method('DELETE')
@@ -119,7 +119,7 @@
     {{-- Part 2: Add New Photos --}}
     <div class="form-group">
         <label for="product_images" class="form-label">Add New Photos</label>
-        <form action="{{ route('products.images.add', $product) }}" 
+        <form action="{{ route('products.images.add', $product->product_id) }}" 
         method="POST" enctype="multipart/form-data">
             @csrf
             <input type="file" id="product_images" name="product_images[]" class="form-control" accept="image/*" multiple>
