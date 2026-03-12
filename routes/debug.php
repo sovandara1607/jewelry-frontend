@@ -35,3 +35,33 @@ Route::get('/debug/api-response', function () {
       'all_images' => $images,
    ], 200, [], JSON_PRETTY_PRINT);
 });
+// Debug route to check seller dashboard data
+Route::get('/debug/dashboard', function () {
+   $apiUrl = config('services.api.url');
+   $token = session('api_token');
+
+   if (!$token) {
+      return response()->json(['error' => 'No API token in session']);
+   }
+
+   $response = Http::withToken($token)->get("{$apiUrl}/api/shops/my-dashboard");
+
+   if ($response->failed()) {
+      return response()->json([
+         'error' => 'API call failed',
+         'status' => $response->status(),
+         'body' => $response->body()
+      ]);
+   }
+
+   $data = $response->json();
+
+   return response()->json([
+      'has_shop' => isset($data['shop']) && $data['shop'],
+      'shop_id' => $data['shop']['shop_id'] ?? null,
+      'shop_name' => $data['shop']['shop_name'] ?? null,
+      'listings_count' => count($data['listings'] ?? []),
+      'listings' => $data['listings'] ?? [],
+      'raw_response' => $data,
+   ], 200, [], JSON_PRETTY_PRINT);
+});
