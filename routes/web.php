@@ -142,27 +142,39 @@ Route::get('/test-upload', function () {
     ], 200, [], JSON_PRETTY_PRINT);
 });
 
+// Debug route to check your current product images
+Route::get('/debug-product', function () {
+    $apiUrl = config('services.api.url');
+    $token = session('api_token');
 
+    // Get your shop products
+    $response = Http::withToken($token)->get("{$apiUrl}/api/shops/my-dashboard");
 
+    if ($response->failed()) {
+        return response()->json(['error' => 'Failed to get products']);
+    }
 
+    $data = $response->json();
+    $listings = $data['listings'] ?? [];
 
+    $productInfo = [];
+    foreach ($listings as $product) {
+        $productInfo[] = [
+            'product_name' => $product['product_name'],
+            'product_id' => $product['product_id'],
+            'has_images' => !empty($product['images']),
+            'image_count' => count($product['images'] ?? []),
+            'images' => $product['images'] ?? [],
+            'expected_urls' => array_map(function ($img) {
+                return storage_url($img['image_path'] ?? '');
+            }, $product['images'] ?? [])
+        ];
+    }
 
-
-
-
-
-
-//thank you page bruhhh finally this is over
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
-
-// authentication routes
-// Route::get('/signup', [AuthController::class, 'showSignupForm'])->name('signup');
-// Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-
-// User profile page
-// Route::get('/profile', [UserController::class, 'showProfile'])->name('profile');
-
+    return response()->json([
+        'total_products' => count($listings),
+        'products' => $productInfo,
+    ], 200, [], JSON_PRETTY_PRINT);
+});
 // success pop up after creating a shop
 // Route::get('/shops/create/success', [ShopController::class, 'showCreationSuccess'])->name('shops.success');
