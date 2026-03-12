@@ -52,9 +52,9 @@ class ProductController extends Controller
         $httpRequest = Http::withToken($token)->acceptJson();
 
         if ($request->hasFile('product_images')) {
-            foreach ($request->file('product_images') as $file) {
+            foreach ($request->file('product_images') as $index => $file) {
                 $httpRequest = $httpRequest->attach(
-                    'product_images[]',
+                    "product_images[{$index}]",
                     file_get_contents($file->getRealPath()),
                     $file->getClientOriginalName()
                 );
@@ -142,9 +142,9 @@ class ProductController extends Controller
 
         $httpRequest = Http::withToken($token)->acceptJson();
 
-        foreach ($request->file('product_images') as $file) {
+        foreach ($request->file('product_images') as $index => $file) {
             $httpRequest = $httpRequest->attach(
-                'product_images[]',
+                "product_images[{$index}]",
                 file_get_contents($file->getRealPath()),
                 $file->getClientOriginalName()
             );
