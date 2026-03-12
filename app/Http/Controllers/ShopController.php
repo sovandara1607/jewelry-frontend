@@ -241,7 +241,7 @@ class ShopController extends Controller
         // Upload the actual image file to API server
         $response = Http::withToken($token)
             ->attach('shop_profilepic', file_get_contents($request->file('shop_profilepic')->getRealPath()), $request->file('shop_profilepic')->getClientOriginalName())
-            ->patch("{$apiUrl}/api/shops/{$shopId}/picture");
+            ->post("{$apiUrl}/api/shops/{$shopId}/picture");
 
         if ($response->failed()) {
             return back()->withErrors(['api' => 'Failed to update shop picture.']);

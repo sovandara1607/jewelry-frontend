@@ -144,24 +144,16 @@ class ProductController extends Controller
         $apiUrl = config('services.api.url');
         $token = session('api_token');
 
-        // Build HTTP request with file attachments  
-        $httpRequest = Http::withToken($token);
-
-        // Attach each image file
         if ($request->hasFile('product_images')) {
             foreach ($request->file('product_images') as $index => $file) {
-                $httpRequest = $httpRequest->attach(
-                    "product_images[{$index}]",
-                    file_get_contents($file->getRealPath()),
-                    $file->getClientOriginalName()
-                );
+                $imageResponse = Http::withToken($token)
+                    ->attach('image', file_get_contents($file->getRealPath()), $file->getClientOriginalName())
+                    ->post("{$apiUrl}/api/products/{$product}/images");
+
+                if ($imageResponse->failed()) {
+                    return back()->withErrors(['api' => 'Failed to add image #' . ($index + 1) . ': ' . $imageResponse->body()]);
+                }
             }
-        }
-
-        $response = $httpRequest->post("{$apiUrl}/api/products/{$product}/images");
-
-        if ($response->failed()) {
-            return back()->withErrors(['api' => 'Failed to add images.']);
         }
 
         return back()->with('status', 'New images added!');
