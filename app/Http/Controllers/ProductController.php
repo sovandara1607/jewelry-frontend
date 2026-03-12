@@ -137,7 +137,7 @@ class ProductController extends Controller
     {
         $request->validate([
             'product_images' => 'required|array',
-            'product_images.*' => 'image|max:2048',
+            'product_images.*' => 'image|mimes:jpeg,png,jpg,gif,webp,svg|max:10240',
         ]);
 
         $apiUrl = config('services.api.url');
