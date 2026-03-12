@@ -95,7 +95,10 @@ class ProductController extends Controller
             abort(403, 'Unauthorized Action');
         }
 
-        $prod = (object) $response->json('product');
+        $data = $response->json();
+        $prod = (object) array_merge($data['product'], [
+            'images' => collect($data['product']['images'] ?? [])->map(fn($i) => (object) $i),
+        ]);
 
         return view('products.edit', ['product' => $prod]);
     }
