@@ -57,6 +57,17 @@
     <!-- Tab 1: Selling (Active Listings) -->
     {{-- This is the only panel that should have 'active' on page load --}}
     <div id="selling" class="tab-content active">
+        {{-- DEBUG: Show what's happening --}}
+        <div style="background: yellow; padding: 5px; margin: 5px; font-size: 11px; border: 1px solid red;">
+            <strong>DEBUG:</strong> 
+            Listings Count: {{ $listings->count() }} | 
+            isEmpty: {{ $listings->isEmpty() ? 'YES' : 'NO' }} | 
+            isNotEmpty: {{ $listings->isNotEmpty() ? 'YES' : 'NO' }}
+            @if($listings->count() > 0)
+            <br>First Product: {{ $listings->first()->product_name }}
+            @endif
+        </div>
+        
         @if ($listings->isNotEmpty())
         <div class="shop-product-grid">
             @foreach ($listings as $product)
