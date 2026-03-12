@@ -184,12 +184,17 @@ class ProductController extends Controller
     private function uploadProductImage(string $apiUrl, string $token, int $productId, $file, int $index = 0): ?string
     {
         $fileContents = file_get_contents($file->getRealPath());
+        if ($fileContents === false) {
+            return 'Could not read image file.';
+        }
         $fileName = $file->getClientOriginalName();
         $fields = [
             'image',
             'product_image',
+            'product_images',
             "product_images[{$index}]",
             'product_images[]',
+            'file',
         ];
 
         $lastMessage = null;

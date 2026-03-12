@@ -11,6 +11,10 @@ if (!function_exists('storage_url')) {
          return '';
       }
 
+      if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+         return $path;
+      }
+
       $base = rtrim(config('services.api.url'), '/');
 
       // Static assets in public directory (e.g. /images/herobg.jpg)
