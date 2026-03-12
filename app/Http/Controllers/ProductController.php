@@ -49,19 +49,33 @@ class ProductController extends Controller
         $apiUrl = config('services.api.url');
         $token = session('api_token');
 
-        // Prepare base form data
-        $formData = [
+        // First, try creating product without images
+        $response = Http::withToken($token)->post("{$apiUrl}/api/product", [
             'product_name' => $request->product_name,
             'product_category' => $request->product_category,
             'product_price' => $request->product_price,
             'product_description' => $request->product_description ?? '',
-        ];
+        ]);
 
-        // Build HTTP request with file attachments
-        $httpRequest = Http::withToken($token);
+        if ($response->failed()) {
+            $errors = $response->json('errors') ?? [];
+            if ($errors) {
+                return back()->withErrors($errors)->withInput();
+            }
+            return back()->withErrors(['api' => 'Failed to create product: ' . $response->body()])->withInput();
+        }
 
-        // Attach each image file
+        $productData = $response->json();
+        $productId = $productData['product']['product_id'] ?? null;
+
+        if (!$productId) {
+            return back()->withErrors(['api' => 'Product created but no ID returned'])->withInput();
+        }
+
+        // Now upload images separately
         if ($request->hasFile('product_images')) {
+            $httpRequest = Http::withToken($token);
+
             foreach ($request->file('product_images') as $index => $file) {
                 $httpRequest = $httpRequest->attach(
                     "product_images[{$index}]",
@@ -69,16 +83,14 @@ class ProductController extends Controller
                     $file->getClientOriginalName()
                 );
             }
-        }
 
-        $response = $httpRequest->post("{$apiUrl}/api/product", $formData);
+            $imageResponse = $httpRequest->post("{$apiUrl}/api/products/{$productId}/images");
 
-        if ($response->failed()) {
-            $errors = $response->json('errors') ?? [];
-            if ($errors) {
-                return back()->withErrors($errors)->withInput();
+            if ($imageResponse->failed()) {
+                // Product created but images failed - show warning but don't fail completely
+                return redirect()->route('shops.dashboard')
+                    ->with('warning', 'Product created but images failed to upload: ' . $imageResponse->body());
             }
-            return back()->withErrors(['api' => 'Failed to create product. API may be unavailable.'])->withInput();
         }
 
         return redirect()->route('shops.dashboard')->with('status', 'New listing added successfully!');

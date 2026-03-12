@@ -6,7 +6,18 @@
 
 @section('content')
 <div class="profile-container">
-   <h1 class="profile-title">Shop Page</h1>
+   {{-- Show success/warning messages --}}
+   @if(session('status'))
+   <div style="background-color: #dfd; border: 1px solid #090; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+      <strong>Success:</strong> {{ session('status') }}
+   </div>
+   @endif
+
+   @if(session('warning'))
+   <div style="background-color: #ffd; border: 1px solid #f90; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+      <strong>Warning:</strong> {{ session('warning') }}
+   </div>
+   @endif
 
    <div class="profile-header">
       <div class="avatar-edit-container">
