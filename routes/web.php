@@ -116,6 +116,7 @@ Route::get('/shops/{handle}', [ShopController::class, 'showPublic'])
 
 
 require __DIR__ . '/auth.php';
+require __DIR__ . '/debug.php';
 
 
 
