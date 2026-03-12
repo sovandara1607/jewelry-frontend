@@ -118,6 +118,30 @@ Route::get('/shops/{handle}', [ShopController::class, 'showPublic'])
 
 require __DIR__ . '/auth.php';
 
+// Debug route to test image upload
+Route::get('/test-upload', function () {
+    $apiUrl = config('services.api.url');
+    $token = session('api_token');
+
+    if (!$token) {
+        return response()->json(['error' => 'No API token']);
+    }
+
+    // Test basic API connectivity
+    $testResponse = Http::withToken($token)->get("{$apiUrl}/api/shops/my-dashboard");
+
+    return response()->json([
+        'api_url' => $apiUrl,
+        'has_token' => $token ? 'YES' : 'NO',
+        'api_reachable' => $testResponse->ok() ? 'YES' : 'NO',
+        'api_status' => $testResponse->status(),
+        'available_endpoints' => [
+            'product_create' => "{$apiUrl}/api/product",
+            'image_upload' => "{$apiUrl}/api/products/{ID}/images",
+        ]
+    ], 200, [], JSON_PRETTY_PRINT);
+});
+
 
 
 
