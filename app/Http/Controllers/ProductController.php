@@ -49,27 +49,31 @@ class ProductController extends Controller
         $apiUrl = config('services.api.url');
         $token = session('api_token');
 
-        // Store images locally for serving
-        $imagePaths = [];
-        if ($request->hasFile('product_images')) {
-            foreach ($request->file('product_images') as $file) {
-                $imagePaths[] = $file->store('product-images', 'public');
-            }
-        }
-
-        $response = Http::withToken($token)->post("{$apiUrl}/api/product", [
+        // Prepare base form data
+        $formData = [
             'product_name' => $request->product_name,
             'product_category' => $request->product_category,
             'product_price' => $request->product_price,
-            'product_description' => $request->product_description,
-            'image_paths' => $imagePaths,
-        ]);
+            'product_description' => $request->product_description ?? '',
+        ];
+
+        // Build HTTP request with file attachments
+        $httpRequest = Http::withToken($token);
+
+        // Attach each image file
+        if ($request->hasFile('product_images')) {
+            foreach ($request->file('product_images') as $index => $file) {
+                $httpRequest = $httpRequest->attach(
+                    "product_images[{$index}]",
+                    file_get_contents($file->getRealPath()),
+                    $file->getClientOriginalName()
+                );
+            }
+        }
+
+        $response = $httpRequest->post("{$apiUrl}/api/product", $formData);
 
         if ($response->failed()) {
-            // Clean up locally stored images on failure
-            foreach ($imagePaths as $path) {
-                Storage::disk('public')->delete($path);
-            }
             $errors = $response->json('errors') ?? [];
             if ($errors) {
                 return back()->withErrors($errors)->withInput();
@@ -132,17 +136,21 @@ class ProductController extends Controller
         $apiUrl = config('services.api.url');
         $token = session('api_token');
 
-        // Store images locally
-        $imagePaths = [];
+        // Build HTTP request with file attachments  
+        $httpRequest = Http::withToken($token);
+
+        // Attach each image file
         if ($request->hasFile('product_images')) {
-            foreach ($request->file('product_images') as $file) {
-                $imagePaths[] = $file->store('product-images', 'public');
+            foreach ($request->file('product_images') as $index => $file) {
+                $httpRequest = $httpRequest->attach(
+                    "product_images[{$index}]",
+                    file_get_contents($file->getRealPath()),
+                    $file->getClientOriginalName()
+                );
             }
         }
 
-        $response = Http::withToken($token)->post("{$apiUrl}/api/products/{$product}/images", [
-            'image_paths' => $imagePaths,
-        ]);
+        $response = $httpRequest->post("{$apiUrl}/api/products/{$product}/images");
 
         if ($response->failed()) {
             return back()->withErrors(['api' => 'Failed to add images.']);
