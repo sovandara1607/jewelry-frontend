@@ -66,7 +66,8 @@ class ProductController extends Controller
         }
 
         $productData = $response->json();
-        $productId = $productData['product']['product_id'] ?? null;
+        $productPayload = $productData['product'] ?? [];
+        $productId = $productPayload['id'] ?? $productPayload['product_id'] ?? null;
 
         if (!$productId) {
             return back()->withErrors(['api' => 'Product created but no ID returned'])->withInput();
@@ -141,9 +142,11 @@ class ProductController extends Controller
         $apiUrl = config('services.api.url');
         $token = session('api_token');
 
+        $resolvedProductId = $this->resolveProductId($apiUrl, $token, $product);
+
         if ($request->hasFile('product_images')) {
             foreach ($request->file('product_images') as $index => $file) {
-                $error = $this->uploadProductImage($apiUrl, $token, $product, $file, $index);
+                $error = $this->uploadProductImage($apiUrl, $token, $resolvedProductId, $file, $index);
                 if ($error) {
                     return back()->withErrors(['api' => 'Failed to add image #' . ($index + 1) . ': ' . $error]);
                 }
@@ -181,7 +184,7 @@ class ProductController extends Controller
         return redirect()->route('shops.dashboard')->with('status', 'Listing has been deleted.');
     }
 
-    private function uploadProductImage(string $apiUrl, string $token, int $productId, $file, int $index = 0): ?string
+    private function uploadProductImage(string $apiUrl, string $token, $productId, $file, int $index = 0): ?string
     {
         $fileContents = file_get_contents($file->getRealPath());
         if ($fileContents === false) {
@@ -235,5 +238,21 @@ class ProductController extends Controller
         }
 
         return $lastMessage ?: 'Failed to upload image.';
+    }
+
+    private function resolveProductId(string $apiUrl, string $token, $product)
+    {
+        $productId = $product;
+        $response = Http::withToken($token)->get("{$apiUrl}/api/product/{$product}");
+
+        if ($response->ok()) {
+            $payload = $response->json('product') ?? [];
+            $resolved = $payload['id'] ?? $payload['product_id'] ?? null;
+            if (!empty($resolved)) {
+                $productId = $resolved;
+            }
+        }
+
+        return $productId;
     }
 }
