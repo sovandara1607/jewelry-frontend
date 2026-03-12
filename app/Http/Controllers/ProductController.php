@@ -197,21 +197,40 @@ class ProductController extends Controller
             'file',
         ];
 
+        $endpoints = [
+            "{$apiUrl}/api/products/{$productId}/images",
+            "{$apiUrl}/api/product/{$productId}/images",
+            "{$apiUrl}/api/products/{$productId}/image",
+            "{$apiUrl}/api/product/{$productId}/image",
+        ];
+
         $lastMessage = null;
 
-        foreach ($fields as $field) {
-            $response = Http::withToken($token)
-                ->attach($field, $fileContents, $fileName)
-                ->post("{$apiUrl}/api/products/{$productId}/images");
+        foreach ($endpoints as $endpoint) {
+            foreach ($fields as $field) {
+                $response = Http::withToken($token)
+                    ->attach($field, $fileContents, $fileName)
+                    ->post($endpoint);
 
-            if ($response->ok()) {
-                return null;
-            }
+                if ($response->ok()) {
+                    return null;
+                }
 
-            $lastMessage = $response->json('message') ?? $response->body();
+                $status = $response->status();
+                $contentType = (string) $response->header('content-type');
+                if ($contentType && str_contains($contentType, 'text/html')) {
+                    $lastMessage = "HTTP {$status} from API.";
+                } else {
+                    $lastMessage = $response->json('message') ?? $response->body();
+                }
 
-            if ($response->status() !== 422) {
-                return $lastMessage ?: 'Failed to upload image.';
+                if ($status === 404) {
+                    break;
+                }
+
+                if ($status !== 422) {
+                    return $lastMessage ?: 'Failed to upload image.';
+                }
             }
         }
 
